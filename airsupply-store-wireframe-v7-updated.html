@@ -748,7 +748,7 @@ input[type=range].f-range{flex:1;height:4px;cursor:pointer;}
 
   <div class="app-container">
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="wf-sidebar">
       <div class="side-logo">air</div>
       <!-- 우리 회사 -->
       <div class="side-section-label">우리 회사</div>
@@ -793,10 +793,10 @@ input[type=range].f-range{flex:1;height:4px;cursor:pointer;}
       <div class="content-scroll" id="contentScroll">
 
         <!-- ====== TAB: 스토어 홈 ====== -->
-        <div class="tab-pane active" id="pane-home">
+        <div class="tab-pane active" id="pane-home" data-wf-id="wf-store-home">
 
           <!-- HERO: Search + Banner -->
-          <div class="hero-section">
+          <div class="hero-section" id="wf-hero">
             <div class="hero-row">
               <!-- Search -->
               <div class="hero-search">
@@ -893,7 +893,7 @@ input[type=range].f-range{flex:1;height:4px;cursor:pointer;}
           </div>
 
           <!-- SEC 1: 자주 구매하는 상품 -->
-          <div class="section">
+          <div class="section" id="wf-repeat-purchase">
             <div class="sec-hdr">
               <div class="sec-title" style="font-size:18px;font-weight:800;">에어서플라이 고객들이 반복해서 구매한 상품</div>
             </div>
@@ -907,7 +907,7 @@ input[type=range].f-range{flex:1;height:4px;cursor:pointer;}
           </div>
 
           <!-- SEC 2: 업종별 상품탐색 -->
-          <div class="section" style="padding:0;">
+          <div class="section" id="wf-industry-rec" style="padding:0;">
             <div class="sec-hdr" style="padding:24px 32px 0;margin-bottom:0;">
               <div class="sec-title"><span id="homeIndSectionTitle">로랩스</span>와/과 비슷한 업종의 고객들이 구매하는 상품</div>
               <div class="sec-more" onclick="switchTab('industry')">전체보기 →</div>
@@ -932,7 +932,7 @@ input[type=range].f-range{flex:1;height:4px;cursor:pointer;}
           </div>
 
           <!-- SEC 3: 카테고리 BEST -->
-          <div class="section">
+          <div class="section" id="wf-category-best">
             <div class="sec-hdr">
               <div class="sec-title">카테고리 BEST</div>
             </div>
@@ -946,7 +946,7 @@ input[type=range].f-range{flex:1;height:4px;cursor:pointer;}
               <button class="cat-pill off" onclick="catPill(this)">위생용품</button>
             </div>
             <div class="prod-grid-5">
-              <div class="prod-card"><div class="prod-img"><span>IMG</span><div class="prod-rank">1</div></div><div class="prod-logo"><svg><use href="#as-logo"/></svg></div><div class="prod-bd"><div class="prod-text"><div class="prod-nm">코카콜라 1.5L</div><div class="prod-pr">₩1,800</div></div><div style="display:flex;flex-wrap:wrap;gap:4px;"><span class="prod-tag">무료배송</span></div></div></div>
+              <div class="prod-card" id="wf-product-card"><div class="prod-img"><span>IMG</span><div class="prod-rank">1</div></div><div class="prod-logo"><svg><use href="#as-logo"/></svg></div><div class="prod-bd"><div class="prod-text"><div class="prod-nm">코카콜라 1.5L</div><div class="prod-pr">₩1,800</div></div><div style="display:flex;flex-wrap:wrap;gap:4px;"><span class="prod-tag">무료배송</span></div></div></div>
               <div class="prod-card"><div class="prod-img"><span>IMG</span><div class="prod-rank">2</div></div><div class="prod-logo"><svg><use href="#as-logo"/></svg></div><div class="prod-bd"><div class="prod-text"><div class="prod-nm">삼다수 2L 6입</div><div class="prod-pr">₩4,200</div></div><div style="display:flex;flex-wrap:wrap;gap:4px;"><span class="prod-tag">무료배송</span></div></div></div>
               <div class="prod-card"><div class="prod-img"><span>IMG</span><div class="prod-rank">3</div></div><div class="prod-logo"><svg><use href="#as-logo"/></svg></div><div class="prod-bd"><div class="prod-text"><div class="prod-nm">포카리스웨트 500ml</div><div class="prod-pr">₩1,200</div></div><div style="display:flex;flex-wrap:wrap;gap:4px;"><span class="prod-tag">무료배송</span></div></div></div>
               <div class="prod-card"><div class="prod-img"><span>IMG</span><div class="prod-rank">4</div></div><div class="prod-logo"><svg><use href="#as-logo"/></svg></div><div class="prod-bd"><div class="prod-text"><div class="prod-nm">카페라떼 200ml</div><div class="prod-pr">₩1,500</div></div><div style="display:flex;flex-wrap:wrap;gap:4px;"><span class="prod-tag">무료배송</span></div></div></div>
@@ -960,7 +960,7 @@ input[type=range].f-range{flex:1;height:4px;cursor:pointer;}
           </div>
 
           <!-- SEC 4: 브랜드 모아보기 -->
-          <div class="section">
+          <div class="section" id="wf-brands">
             <div class="sec-hdr">
               <div class="sec-title">브랜드 모아보기</div>
             </div>
@@ -1011,7 +1011,7 @@ input[type=range].f-range{flex:1;height:4px;cursor:pointer;}
         </div><!-- end pane-home -->
 
         <!-- ====== TAB: 간식 패키지 (빌더 내장) ====== -->
-        <div class="tab-pane" id="pane-snack">
+        <div class="tab-pane" id="pane-snack" data-wf-id="wf-snack">
 
           <!-- 빌더 PAGE 0: 히어로 + 패키지 목록 -->
           <div class="bd-page" id="bd-page0">
@@ -1196,7 +1196,7 @@ input[type=range].f-range{flex:1;height:4px;cursor:pointer;}
         </div><!-- end pane-snack -->
 
         <!-- ====== TAB: 업종별 상품탐색 ====== -->
-        <div class="tab-pane" id="pane-industry">
+        <div class="tab-pane" id="pane-industry" data-wf-id="wf-industry">
           <div class="ind-full-content">
             <!-- 아코디언 트리 사이드바 -->
             <div class="ind-tree-sidebar">
@@ -1216,7 +1216,7 @@ input[type=range].f-range{flex:1;height:4px;cursor:pointer;}
         </div>
 
         <!-- ====== TAB: 기획전 ====== -->
-        <div class="tab-pane" id="pane-promo">
+        <div class="tab-pane" id="pane-promo" data-wf-id="wf-promotions">
           <!-- 기획전 목록 -->
           <div class="promo-page" id="promoList">
             <div class="promo-title">기획전</div>
@@ -2244,6 +2244,42 @@ function closePromoDetail() {
     }
   });
 })();
+
+// ===== postMessage listener for spec-reviewer anchor navigation =====
+window.addEventListener('message', function(e) {
+  if (!e.data || e.data.type !== 'scroll-to-anchor') return;
+  const anchorId = e.data.anchorId;
+  if (!anchorId) return;
+
+  // Direct element ID match
+  let target = document.getElementById(anchorId);
+
+  // If not found, check data-wf-id attributes (for tab panes)
+  if (!target) {
+    target = document.querySelector('[data-wf-id="' + anchorId + '"]');
+  }
+
+  if (!target) return;
+
+  // If target is inside a tab-pane, activate that tab first
+  const pane = target.closest('.tab-pane');
+  if (pane) {
+    const tabId = pane.id.replace('pane-', '');
+    if (typeof switchTab === 'function') switchTab(tabId);
+  }
+
+  // Scroll to target
+  setTimeout(function() {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Brief highlight effect
+    target.style.outline = '3px solid #FFB800';
+    target.style.outlineOffset = '2px';
+    setTimeout(function() {
+      target.style.outline = '';
+      target.style.outlineOffset = '';
+    }, 2000);
+  }, 100);
+});
 </script>
 </body>
 </html>
