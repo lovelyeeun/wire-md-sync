@@ -400,6 +400,186 @@
       background: rgba(74, 144, 226, 0.05);
     }
 
+    .spec-content.edited {
+      background: rgba(74, 144, 226, 0.04);
+      border-bottom: 1px solid #4a90e2;
+    }
+
+    .inline-review-box {
+      background: #F8FAFF;
+      border: 1px solid #D0DFFE;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin: 6px 0 12px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .inline-review-label {
+      font-weight: 600;
+      color: #4a90e2;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .inline-review-old {
+      text-decoration: line-through;
+      color: #999;
+      margin-bottom: 2px;
+      word-break: break-word;
+    }
+
+    .inline-review-new {
+      color: #2563EB;
+      font-weight: 500;
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+
+    .inline-review-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .inline-review-btn {
+      padding: 4px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      transition: all 0.15s;
+      background: white;
+    }
+
+    .inline-review-btn.confirm {
+      background: #00B96B;
+      color: white;
+      border-color: #00B96B;
+    }
+
+    .inline-review-btn.confirm:hover { background: #00A35E; }
+
+    .inline-review-btn.revert {
+      background: white;
+      color: #666;
+    }
+
+    .inline-review-btn.revert:hover { background: #f5f5f5; border-color: #999; }
+
+    /* Change Log Panel */
+    .changelog-overlay {
+      display: none;
+      position: fixed;
+      top: 0; right: 0; bottom: 0; left: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 200;
+    }
+
+    .changelog-overlay.open { display: block; }
+
+    .changelog-panel {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 480px;
+      max-width: 90vw;
+      background: white;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+      z-index: 201;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+    }
+
+    .changelog-overlay.open .changelog-panel { transform: translateX(0); }
+
+    .changelog-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e8e8e8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .changelog-header h3 { font-size: 16px; font-weight: 700; color: #222; }
+
+    .changelog-close {
+      background: none; border: none; font-size: 20px;
+      cursor: pointer; color: #999; padding: 4px 8px;
+    }
+
+    .changelog-close:hover { color: #333; }
+
+    .changelog-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+
+    .changelog-empty {
+      text-align: center;
+      color: #999;
+      padding: 40px 0;
+      font-size: 14px;
+    }
+
+    .changelog-item {
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    .changelog-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .changelog-section-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: #222;
+    }
+
+    .changelog-time {
+      font-size: 11px;
+      color: #999;
+    }
+
+    .changelog-diff {
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .changelog-diff .old {
+      background: #FFF0F0;
+      color: #CC0000;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: block;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+
+    .changelog-diff .new {
+      background: #F0FFF4;
+      color: #2d5016;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: block;
+      word-break: break-word;
+    }
+
+    .changelog-comment {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #666;
+      font-style: italic;
+    }
+
     .spec-list {
       list-style: none;
       margin: 10px 0 12px 0;
@@ -722,10 +902,22 @@
         <span class="progress-badge confirmed" id="countConfirmed">✅ 0</span>
         <span class="progress-badge blocked" id="countBlocked">❌ 0</span>
       </div>
+      <button class="toolbar-btn" onclick="openChangeLog()">변경 이력</button>
       <button class="toolbar-btn" onclick="document.getElementById('globalFileInput').click()">파일 불러오기</button>
       <input type="file" id="globalFileInput" accept=".html,.md" multiple onchange="handleGlobalUpload(event)">
       <button class="toolbar-btn" onclick="exportMarkdown()">Markdown 내보내기</button>
       <button class="toolbar-btn" onclick="resetChanges()">수정 초기화</button>
+    </div>
+  </div>
+
+  <!-- Change Log Panel -->
+  <div class="changelog-overlay" id="changelogOverlay" onclick="closeChangeLog()">
+    <div class="changelog-panel" onclick="event.stopPropagation()">
+      <div class="changelog-header">
+        <h3>변경 이력</h3>
+        <button class="changelog-close" onclick="closeChangeLog()">&times;</button>
+      </div>
+      <div class="changelog-body" id="changelogBody"></div>
     </div>
   </div>
 
@@ -1168,6 +1360,17 @@
     let anchorMap = {};
     const originalData = JSON.stringify(SPEC_DATA);
 
+    // Change log: [{ sectionId, sectionTitle, timestamp, oldText, newText, comment }]
+    const CHANGELOG_KEY = 'spec-change-log';
+    function loadChangeLog() {
+      try { return JSON.parse(localStorage.getItem(CHANGELOG_KEY)) || []; } catch { return []; }
+    }
+    function saveChangeLog() {
+      localStorage.setItem(CHANGELOG_KEY, JSON.stringify(changeLog));
+    }
+    let changeLog = loadChangeLog();
+
+
     function init() {
       setupScreenTabs();
       loadAnchorMap().then(() => {
@@ -1220,6 +1423,94 @@
       });
     }
 
+    // ===== EDIT TRACKING =====
+    function findParentSectionId(el) {
+      const sec = el.closest('.spec-section');
+      return sec ? sec.id : null;
+    }
+
+    function findSectionTitle(sectionId) {
+      function search(sections) {
+        for (const s of sections) {
+          if (s.id === sectionId) return s.title;
+          if (s.children) {
+            const found = search(s.children);
+            if (found) return found;
+          }
+        }
+        return null;
+      }
+      return search(SPEC_DATA) || sectionId;
+    }
+
+    function handleContentBlur(el) {
+      // Store original on first focus
+      if (!el.dataset.original) {
+        el.dataset.original = el.textContent;
+      }
+
+      const original = el.dataset.original;
+      const current = el.textContent;
+
+      // Remove existing review box for this element
+      const existingBox = el.nextElementSibling;
+      if (existingBox && existingBox.classList.contains('inline-review-box')) {
+        existingBox.remove();
+      }
+
+      // No change — clean up
+      if (original === current) {
+        el.classList.remove('edited');
+        return;
+      }
+
+      el.classList.add('edited');
+
+      const sectionId = findParentSectionId(el);
+      const sectionTitle = sectionId ? findSectionTitle(sectionId) : '';
+
+      // Create inline review box
+      const box = document.createElement('div');
+      box.className = 'inline-review-box';
+      box.innerHTML =
+        '<div class="inline-review-label">✏️ 수정됨</div>' +
+        '<div class="inline-review-old"></div>' +
+        '<div class="inline-review-new"></div>' +
+        '<div class="inline-review-actions">' +
+          '<button class="inline-review-btn confirm">✅ 확정</button>' +
+          '<button class="inline-review-btn revert">↩ 되돌리기</button>' +
+        '</div>';
+
+      box.querySelector('.inline-review-old').textContent = original;
+      box.querySelector('.inline-review-new').textContent = current;
+
+      // Confirm button
+      box.querySelector('.confirm').onclick = () => {
+        changeLog.unshift({
+          sectionId: sectionId,
+          sectionTitle: sectionTitle,
+          timestamp: new Date().toISOString(),
+          oldText: original,
+          newText: current,
+          comment: ''
+        });
+        saveChangeLog();
+        el.dataset.original = current;
+        el.classList.remove('edited');
+        box.remove();
+      };
+
+      // Revert button
+      box.querySelector('.revert').onclick = () => {
+        el.textContent = original;
+        el.dataset.original = original;
+        el.classList.remove('edited');
+        box.remove();
+      };
+
+      el.insertAdjacentElement('afterend', box);
+    }
+
     function renderSection(section, depth = 0) {
       const container = document.createElement('div');
       container.className = 'spec-section';
@@ -1253,6 +1544,7 @@
         contentDiv.className = 'spec-content';
         contentDiv.contentEditable = 'true';
         contentDiv.textContent = section.content;
+        contentDiv.addEventListener('blur', () => handleContentBlur(contentDiv));
         container.appendChild(contentDiv);
       }
 
@@ -1264,6 +1556,7 @@
           li.className = 'spec-content';
           li.contentEditable = 'true';
           li.textContent = item;
+          li.addEventListener('blur', () => handleContentBlur(li));
           ul.appendChild(li);
         });
         container.appendChild(ul);
@@ -1366,6 +1659,7 @@
             contentDiv.className = 'spec-content';
             contentDiv.contentEditable = 'true';
             contentDiv.textContent = subsection.content;
+            contentDiv.addEventListener('blur', () => handleContentBlur(contentDiv));
             container.appendChild(contentDiv);
           }
           if (subsection.list) {
@@ -1376,6 +1670,7 @@
               li.className = 'spec-content';
               li.contentEditable = 'true';
               li.textContent = item;
+              li.addEventListener('blur', () => handleContentBlur(li));
               ul.appendChild(li);
             });
             container.appendChild(ul);
@@ -1414,6 +1709,7 @@
           td.className = 'spec-content';
           td.contentEditable = 'true';
           td.textContent = cellData;
+          td.addEventListener('blur', () => handleContentBlur(td));
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -1736,12 +2032,56 @@
       if (confirm('모든 수정사항이 초기화됩니다. 계속하시겠습니까?')) {
         reviewStates = {};
         saveReviewStates();
+        changeLog = [];
+        saveChangeLog();
         Object.assign(SPEC_DATA, JSON.parse(originalData));
         renderSpecContent();
         setupScreenTabs();
         updateProgress();
         showToast('수정사항이 초기화되었습니다.');
       }
+    }
+
+    // ===== CHANGE LOG PANEL =====
+    function openChangeLog() {
+      renderChangeLog();
+      document.getElementById('changelogOverlay').classList.add('open');
+    }
+
+    function closeChangeLog() {
+      document.getElementById('changelogOverlay').classList.remove('open');
+    }
+
+    function renderChangeLog() {
+      const body = document.getElementById('changelogBody');
+      if (changeLog.length === 0) {
+        body.innerHTML = '<div class="changelog-empty">확정된 변경 이력이 없습니다.</div>';
+        return;
+      }
+      body.innerHTML = changeLog.map(entry => {
+        const date = new Date(entry.timestamp);
+        const timeStr = date.toLocaleDateString('ko-KR') + ' ' + date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        const oldSnippet = entry.oldText.length > 80 ? entry.oldText.substring(0, 80) + '...' : entry.oldText;
+        const newSnippet = entry.newText.length > 80 ? entry.newText.substring(0, 80) + '...' : entry.newText;
+        const commentHtml = entry.comment ? `<div class="changelog-comment">${escapeHtml(entry.comment)}</div>` : '';
+        return `<div class="changelog-item">
+          <div class="changelog-item-header">
+            <span class="changelog-section-name">${escapeHtml(entry.sectionTitle)}</span>
+            <span class="changelog-time">${timeStr}</span>
+          </div>
+          <div class="changelog-diff">
+            <span class="old">- ${escapeHtml(oldSnippet)}</span>
+            <span class="new">+ ${escapeHtml(newSnippet)}</span>
+          </div>
+          ${commentHtml}
+        </div>`;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
     }
 
     // ===== TOAST NOTIFICATION =====
