@@ -1369,7 +1369,8 @@
       localStorage.setItem(CHANGELOG_KEY, JSON.stringify(changeLog));
     }
     let changeLog = loadChangeLog();
-
+    // editDiffs: { sectionId: [{ original, current }] } — persists across tab switches for export
+    let editDiffs = {};
 
     function init() {
       setupScreenTabs();
@@ -1443,7 +1444,7 @@
       return search(SPEC_DATA) || sectionId;
     }
 
-    function handleContentBlur(el) {
+    function handleContentBlur(el, setter) {
       // Store original on first focus
       if (!el.dataset.original) {
         el.dataset.original = el.textContent;
@@ -1458,6 +1459,9 @@
         existingBox.remove();
       }
 
+      // Mutate SPEC_DATA so other-tab edits persist for export
+      if (setter) setter(current);
+
       // No change — clean up
       if (original === current) {
         el.classList.remove('edited');
@@ -1468,6 +1472,17 @@
 
       const sectionId = findParentSectionId(el);
       const sectionTitle = sectionId ? findSectionTitle(sectionId) : '';
+
+      // Record in editDiffs for export (replace if re-edited, keep original)
+      if (sectionId) {
+        if (!editDiffs[sectionId]) editDiffs[sectionId] = [];
+        const existing = editDiffs[sectionId].find(d => d.original === original || d.current === original);
+        if (existing) {
+          existing.current = current;
+        } else {
+          editDiffs[sectionId].push({ original, current });
+        }
+      }
 
       // Create inline review box
       const box = document.createElement('div');
@@ -1495,6 +1510,9 @@
           comment: ''
         });
         saveChangeLog();
+        if (sectionId && editDiffs[sectionId]) {
+          editDiffs[sectionId] = editDiffs[sectionId].filter(d => d.original !== original);
+        }
         el.dataset.original = current;
         el.classList.remove('edited');
         box.remove();
@@ -1503,8 +1521,12 @@
       // Revert button
       box.querySelector('.revert').onclick = () => {
         el.textContent = original;
+        if (setter) setter(original);
         el.dataset.original = original;
         el.classList.remove('edited');
+        if (sectionId && editDiffs[sectionId]) {
+          editDiffs[sectionId] = editDiffs[sectionId].filter(d => d.original !== original);
+        }
         box.remove();
       };
 
@@ -1544,19 +1566,19 @@
         contentDiv.className = 'spec-content';
         contentDiv.contentEditable = 'true';
         contentDiv.textContent = section.content;
-        contentDiv.addEventListener('blur', () => handleContentBlur(contentDiv));
+        contentDiv.addEventListener('blur', () => handleContentBlur(contentDiv, v => { section.content = v; }));
         container.appendChild(contentDiv);
       }
 
       if (section.list) {
         const ul = document.createElement('ul');
         ul.className = 'spec-list';
-        section.list.forEach(item => {
+        section.list.forEach((item, i) => {
           const li = document.createElement('li');
           li.className = 'spec-content';
           li.contentEditable = 'true';
           li.textContent = item;
-          li.addEventListener('blur', () => handleContentBlur(li));
+          li.addEventListener('blur', () => handleContentBlur(li, v => { section.list[i] = v; }));
           ul.appendChild(li);
         });
         container.appendChild(ul);
@@ -1659,18 +1681,18 @@
             contentDiv.className = 'spec-content';
             contentDiv.contentEditable = 'true';
             contentDiv.textContent = subsection.content;
-            contentDiv.addEventListener('blur', () => handleContentBlur(contentDiv));
+            contentDiv.addEventListener('blur', () => handleContentBlur(contentDiv, v => { subsection.content = v; }));
             container.appendChild(contentDiv);
           }
           if (subsection.list) {
             const ul = document.createElement('ul');
             ul.className = 'spec-list';
-            subsection.list.forEach(item => {
+            subsection.list.forEach((item, i) => {
               const li = document.createElement('li');
               li.className = 'spec-content';
               li.contentEditable = 'true';
               li.textContent = item;
-              li.addEventListener('blur', () => handleContentBlur(li));
+              li.addEventListener('blur', () => handleContentBlur(li, v => { subsection.list[i] = v; }));
               ul.appendChild(li);
             });
             container.appendChild(ul);
@@ -1702,14 +1724,14 @@
       table.appendChild(thead);
 
       const tbody = document.createElement('tbody');
-      tableData.rows.forEach(rowData => {
+      tableData.rows.forEach((rowData, ri) => {
         const tr = document.createElement('tr');
-        rowData.forEach(cellData => {
+        rowData.forEach((cellData, ci) => {
           const td = document.createElement('td');
           td.className = 'spec-content';
           td.contentEditable = 'true';
           td.textContent = cellData;
-          td.addEventListener('blur', () => handleContentBlur(td));
+          td.addEventListener('blur', () => handleContentBlur(td, v => { tableData.rows[ri][ci] = v; }));
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -1960,13 +1982,53 @@
 
     // ===== MARKDOWN EXPORT =====
     function exportMarkdown() {
-      const rightPanel = document.getElementById('rightPanel');
-      let markdown = '';
+      let markdown = '# 에어스토어 스펙 리뷰\n\n';
 
-      function extractMarkdown(element, depth = 0) {
+      // Render ALL sections temporarily to extract full content (SPEC_DATA already mutated by edits)
+      const tempDiv = document.createElement('div');
+      SPEC_DATA.forEach(section => {
+        const secEl = renderSection(section);
+        // Inject pending editDiffs (edits not yet confirmed) as inline-review-boxes into tempDiv
+        function injectDiffs(s, el) {
+          if (editDiffs[s.id] && editDiffs[s.id].length > 0) {
+            editDiffs[s.id].forEach(diff => {
+              const box = document.createElement('div');
+              box.className = 'inline-review-box';
+              const oldDiv = document.createElement('div');
+              oldDiv.className = 'inline-review-old';
+              oldDiv.textContent = diff.original;
+              const newDiv = document.createElement('div');
+              newDiv.className = 'inline-review-new';
+              newDiv.textContent = diff.current;
+              box.appendChild(document.createElement('div')).textContent = '✏️ 수정됨 (미확정)';
+              box.appendChild(oldDiv);
+              box.appendChild(newDiv);
+              el.appendChild(box);
+            });
+          }
+          if (s.children) s.children.forEach(child => {
+            const childEl = el.querySelector('#' + child.id);
+            if (childEl) injectDiffs(child, childEl);
+          });
+        }
+        injectDiffs(section, secEl);
+        tempDiv.appendChild(secEl);
+      });
+
+      function extractMarkdown(element) {
         let text = '';
         if (element.nodeType === Node.TEXT_NODE) {
           return element.textContent;
+        }
+
+        // Inline review boxes → show as diff
+        if (element.classList && element.classList.contains('inline-review-box')) {
+          const oldEl = element.querySelector('.inline-review-old');
+          const newEl = element.querySelector('.inline-review-new');
+          if (oldEl && newEl) {
+            return `> ✏️ ~~${oldEl.textContent}~~ → **${newEl.textContent}**\n\n`;
+          }
+          return '';
         }
 
         if (element.tagName && element.tagName.match(/^H[1-6]$/)) {
@@ -1992,7 +2054,7 @@
           text += '```\n' + element.textContent + '\n```\n\n';
         } else if (element.children) {
           for (let child of element.children) {
-            text += extractMarkdown(child, depth + 1);
+            text += extractMarkdown(child);
           }
         }
 
@@ -2013,7 +2075,7 @@
         return md;
       }
 
-      for (let child of rightPanel.children) {
+      for (let child of tempDiv.children) {
         markdown += extractMarkdown(child);
       }
 
@@ -2024,7 +2086,7 @@
       a.download = 'spec-review-' + new Date().toISOString().split('T')[0] + '.md';
       a.click();
       URL.revokeObjectURL(url);
-      showToast('Markdown이 다운로드되었습니다.');
+      showToast('전체 Markdown이 다운로드되었습니다.');
     }
 
     // ===== RESET CHANGES =====
@@ -2034,6 +2096,7 @@
         saveReviewStates();
         changeLog = [];
         saveChangeLog();
+        editDiffs = {};
         Object.assign(SPEC_DATA, JSON.parse(originalData));
         renderSpecContent();
         setupScreenTabs();
